@@ -1,39 +1,43 @@
 using NUnit.Framework;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.TestTools;
 using System.Collections;
+using UnityEngine.InputSystem;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using System.Drawing;
 
 public class ColorChangingButtonTests {
-    [UnityTest]
-    public IEnumerator ButtonClick_TriggersColorChange() {
-        // Arrange
-        var buttonObject = CreateButton();
-        ColorChangingButton colorChangingButton = buttonObject.AddComponent<ColorChangingButton>();
-        Color initialColor = colorChangingButton.Color;
-
-        var spriteObject = new GameObject("Sprite");
-        var spriteObjectRenderer = spriteObject.AddComponent<SpriteRenderer>();
-        colorChangingButton.SpriteToColor = spriteObjectRenderer;
-
-        // Act
-        buttonObject.GetComponent<Button>().onClick.AddListener(colorChangingButton.SetColor);
-        buttonObject.GetComponent<Button>().onClick.Invoke();
-
-        yield return null;
-
-        // Assert
-        Assert.AreNotEqual(initialColor, spriteObjectRenderer.color, "Color should change after button click.");
+    [SetUp] public void SetUp() {
+        SceneManager.LoadScene("Main");
     }
 
-    public GameObject CreateButton() {
-        GameObject canvasObject = new GameObject("Canvas");
-        Canvas canvas = canvasObject.AddComponent<Canvas>();
+    [UnityTest]
+    public IEnumerator UICanvasExistsTest() {
+        var canvas = GameObject.Find("Canvas");
+        Assert.IsNotNull(canvas);
+        yield return null;
+    }
 
-        GameObject buttonObject = new GameObject("TestButton");
-        buttonObject.transform.SetParent(canvasObject.transform);
-        buttonObject.AddComponent<Button>();
 
-        return buttonObject;
+    [UnityTest]
+    public IEnumerator ColorButtonExistsTest() {
+        var canvas = GameObject.Find("Canvas");
+        Assert.That(canvas, Is.Not.Null, "UI canvas not found.");
+        var button = canvas.transform.Find("ColorButton").GetComponent<ColorChangingButton>();
+        Assert.That(button, Is.Not.Null, "ColorButton button not found.");
+        yield return null;
+    }
+
+    [UnityTest]
+    public IEnumerator ColorButtonChangesSpriteColorTest() {
+        var canvas = GameObject.Find("Canvas");
+        var colorButton = canvas.transform.Find("ColorButton").GetComponent<ColorChangingButton>();
+        var spriteToBeColored = GameObject.Find("Square").GetComponent<SpriteRenderer>();
+        var colorWithAlpha = colorButton.Color;
+        colorWithAlpha.a = 1;
+        colorButton.GetComponent<Button>().onClick.Invoke();
+        Assert.That(spriteToBeColored.color, Is.EqualTo(colorWithAlpha));
+        yield return null;
     }
 }
