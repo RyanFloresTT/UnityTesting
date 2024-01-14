@@ -2,13 +2,12 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 using System.Collections;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using System.Drawing;
 
 public class ColorChangingButtonTests {
-    [SetUp] public void SetUp() {
+    [SetUp]
+    public void SetUp() {
         SceneManager.LoadScene("Main");
     }
 
@@ -18,7 +17,6 @@ public class ColorChangingButtonTests {
         Assert.IsNotNull(canvas);
         yield return null;
     }
-
 
     [UnityTest]
     public IEnumerator ColorButtonExistsTest() {
@@ -35,9 +33,9 @@ public class ColorChangingButtonTests {
         var colorButton = canvas.transform.Find("ColorButton").GetComponent<ColorChangingButton>();
         var spriteToBeColored = GameObject.Find("Square").GetComponent<SpriteRenderer>();
         var colorWithAlpha = colorButton.Color;
-        colorWithAlpha.a = 1;
+        colorWithAlpha.a = 1;   
+        yield return new WaitForSecondsRealtime(1);
         colorButton.GetComponent<Button>().onClick.Invoke();
         Assert.That(spriteToBeColored.color, Is.EqualTo(colorWithAlpha));
-        yield return null;
     }
 }
